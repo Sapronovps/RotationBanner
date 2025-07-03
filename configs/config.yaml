@@ -1,0 +1,17 @@
+Server:
+  Host: 127.0.0.1
+  Port: 8081
+  AddressGrpc: ":50051"
+  IsHTTP: false
+
+Logger:
+  Level: DEBUG
+  File: test.txt
+
+DB:
+  Host: localhost
+  Port: 5432
+  Username: user
+  Password: password
+  DBName: banner
+  InMemory: false

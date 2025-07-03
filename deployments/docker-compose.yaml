@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:17.5
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-banner} # имя БД
+      POSTGRES_USER: ${POSTGRES_USER:-user} # пользователь
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password} # пароль
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_banner_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_banner_data:
