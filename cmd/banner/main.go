@@ -67,7 +67,7 @@ func main() {
 
 	// Создаем ГРУППУ
 	newGroup := &model.Group{
-		Name:        "Старики",
+		Title:       "Старики",
 		Description: "First Group",
 	}
 	err = application.CreateGroup(newGroup)
