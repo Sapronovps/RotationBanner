@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"github.com/Sapronovps/RotationBanner/internal/model"
+	"github.com/Sapronovps/RotationBanner/internal/service"
 	"github.com/Sapronovps/RotationBanner/internal/storage"
 	"go.uber.org/zap"
 	"sync"
@@ -29,48 +31,56 @@ func (a *App) AddBanner(banner *model.Banner) error {
 	return a.storage.Banner().CreateBanner(banner)
 }
 
-//
-//func (a *App) GetBanner(id int) (banner *model.Banner, err error) {
-//	return a.storage.Banner().GetBanner(id)
-//}
-//
-//func (a *App) CreateGroup(group *model.Group) error {
-//	return a.storage.Banner().CreateGroup(group)
-//}
-//
-//func (a *App) GetGroup(id int) (group *model.Group, err error) {
-//	return a.storage.Banner().GetGroup(id)
-//}
-//
-//func (a *App) CreateBannerGroupStats(group *model.BannerGroupStats) error {
-//	return a.storage.Banner().CreateBannerGroupStats(group)
-//}
-//
-//func (a *App) GetBannerGroupStats(slotID, bannerID, groupID int) (*model.BannerGroupStats, error) {
-//	return a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
-//}
-//
-//func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
-//	stats, err := a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
-//	if err != nil {
-//		return err
-//	}
-//	stats.Clicks++
-//
-//	return nil
-//}
-//
-//func (a *App) GetAndUpdateBanner(slotID, groupID int) (banner *model.Banner, err error) {
-//	bannersStats := a.storage.Banner().GetBannersGroupStats(slotID, groupID)
-//	if bannersStats == nil {
-//		return nil, fmt.Errorf("banner group stats not found")
-//	}
-//
-//	bannerID := service.CalculateBannerIdByOneArmBandit(bannersStats)
-//
-//	if bannerID > 0 {
-//		return a.storage.Banner().GetBanner(bannerID)
-//	}
-//
-//	return nil, fmt.Errorf("banner group stats not found")
-//}
+func (a *App) GetBanner(id int) (banner *model.Banner, err error) {
+	return a.storage.Banner().GetBanner(id)
+}
+
+func (a *App) CreateGroup(group *model.Group) error {
+	return a.storage.Banner().CreateGroup(group)
+}
+
+func (a *App) GetGroup(id int) (group *model.Group, err error) {
+	return a.storage.Banner().GetGroup(id)
+}
+
+func (a *App) CreateBannerGroupStats(group *model.BannerGroupStats) error {
+	return a.storage.Banner().CreateBannerGroupStats(group)
+}
+
+func (a *App) GetBannerGroupStats(slotID, bannerID, groupID int) (*model.BannerGroupStats, error) {
+	return a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
+}
+
+func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
+	stats, err := a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
+	if err != nil {
+		stats = &model.BannerGroupStats{
+			SlotID:   slotID,
+			BannerID: bannerID,
+			GroupID:  groupID,
+		}
+		err = a.CreateBannerGroupStats(stats)
+		if err != nil {
+			return err
+		}
+	}
+	stats.Clicks++
+	stats.Shows++
+
+	return a.storage.Banner().UpdateBannerGroupStats(stats)
+}
+
+func (a *App) GetAndUpdateBanner(slotID, groupID int) (banner *model.Banner, err error) {
+	bannersStats := a.storage.Banner().GetBannersGroupStats(slotID, groupID)
+	if bannersStats == nil {
+		return nil, fmt.Errorf("banner group stats not found slot id: %d and group id: %d", slotID, groupID)
+	}
+
+	bannerID := service.CalculateBannerIdByOneArmBandit(bannersStats)
+
+	if bannerID > 0 {
+		return a.storage.Banner().GetBanner(bannerID)
+	}
+
+	return nil, fmt.Errorf("banner group stats not found")
+}

@@ -20,6 +20,7 @@ func CalculateBannerIdByOneArmBandit(bannersStats []*model.BannerGroupStats) int
 	workers := 5
 	jobs := make(chan *model.BannerGroupStats, len(bannersStats))
 	wg := sync.WaitGroup{}
+	var mu sync.Mutex
 
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
@@ -30,7 +31,9 @@ func CalculateBannerIdByOneArmBandit(bannersStats []*model.BannerGroupStats) int
 				fraction := numerator / float64(stats.Shows)
 				sqrtVal := math.Sqrt(fraction)
 				result := float64(stats.Clicks) + sqrtVal
-				weightBanners[stats.ID] = result
+				mu.Lock()
+				weightBanners[stats.BannerID] = result
+				mu.Unlock()
 			}
 		}()
 	}

@@ -37,3 +37,12 @@ func (b *BannerRepository) GetBannersGroupStats(slotID, groupID int) []*model.Ba
 	}
 	return bannersStats
 }
+
+func (b *BannerRepository) UpdateBannerGroupStats(s *model.BannerGroupStats) error {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	b.BannerGroupStats[s.ID] = s
+
+	return nil
+}
