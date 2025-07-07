@@ -39,24 +39,37 @@ func main() {
 
 	logg := logger.New(config.Logger.Level, config.Logger.File)
 	application := app.NewApp(logg, storageApp)
-	_ = application
 
+	// Кейсы для наполнения БД
+	//testCreateData(application)
+
+	// Регистрируем клик
+	err := application.RegisterClick(1, 1, 1)
+	err = application.RegisterClick(1, 1, 1)
+	err = application.RegisterClick(1, 2, 1)
+	if err != nil {
+		log.Fatalf("Failed to register click: %v", err)
+	}
+
+	// Получим статистику по баннерам
+	result, err := application.GetAndUpdateBanner(1, 1)
+	if err != nil {
+		log.Fatalf("Failed to calculate statistic banner: %v", err)
+	}
+
+	fmt.Println(result)
+}
+
+func testCreateData(application *app.App) {
+	// Кейсы для наполнения БД
 	// Создаем СЛОТ
 	newSlot := model.Slot{
 		Description: "Test",
 	}
 	err := application.AddSlot(&newSlot)
 	if err != nil {
-		logg.Fatal(err.Error())
+		panic("Failed to add new slot")
 	}
-
-	slot, err := application.GetSlot(newSlot.ID)
-	if err != nil {
-		log.Fatalf("Could not get slot: %v", err)
-	}
-	_ = slot
-
-	fmt.Println(slot)
 
 	// Создаем БАННЕР
 	newBanner := model.Banner{
@@ -66,12 +79,6 @@ func main() {
 	if err != nil {
 		panic("Failed to add new banner")
 	}
-
-	banner, err := application.GetBanner(newBanner.ID)
-	if err != nil {
-		panic("Failed to get banner")
-	}
-	_ = banner
 
 	// Создаем 2 БАННЕР
 	newBanner2 := model.Banner{
@@ -91,28 +98,4 @@ func main() {
 	if err != nil {
 		panic("Failed to get banner")
 	}
-
-	group, err := application.GetGroup(newGroup.ID)
-	if err != nil {
-		panic("Failed to get group:" + err.Error())
-	}
-	_ = group
-
-	fmt.Println(group)
-
-	// Регистрируем клик
-	err = application.RegisterClick(slot.ID, banner.ID, group.ID)
-	err = application.RegisterClick(slot.ID, banner.ID, group.ID)
-	err = application.RegisterClick(slot.ID, newBanner2.ID, group.ID)
-	if err != nil {
-		log.Fatalf("Failed to register click: %v", err)
-	}
-
-	// Получим статистику по баннерам
-	result, err := application.GetAndUpdateBanner(slot.ID, group.ID)
-	if err != nil {
-		log.Fatalf("Failed to calculate statistic banner: %v", err)
-	}
-
-	fmt.Println(result)
 }

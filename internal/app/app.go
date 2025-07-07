@@ -76,7 +76,7 @@ func (a *App) GetAndUpdateBanner(slotID, groupID int) (banner *model.Banner, err
 		return nil, fmt.Errorf("banner group stats not found slot id: %d and group id: %d", slotID, groupID)
 	}
 
-	bannerID := service.CalculateBannerIdByOneArmBandit(bannersStats)
+	bannerID := service.CalculateBannerIdByMultiArmBandit(bannersStats)
 
 	if bannerID > 0 {
 		return a.storage.Banner().GetBanner(bannerID)
