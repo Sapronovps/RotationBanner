@@ -2,7 +2,7 @@ Server:
   Host: 127.0.0.1
   Port: 8081
   AddressGrpc: ":50051"
-  IsHTTP: false
+  IsHTTP: true
 
 Logger:
   Level: DEBUG

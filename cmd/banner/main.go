@@ -1,16 +1,21 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/Sapronovps/RotationBanner/internal/app"
 	"github.com/Sapronovps/RotationBanner/internal/logger"
 	"github.com/Sapronovps/RotationBanner/internal/model"
+	"github.com/Sapronovps/RotationBanner/internal/server/http"
 	"github.com/Sapronovps/RotationBanner/internal/storage"
 	"github.com/Sapronovps/RotationBanner/internal/storage/memory"
 	"github.com/Sapronovps/RotationBanner/internal/storage/sql"
 	_ "github.com/lib/pq" // for postgres
-	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -40,24 +45,53 @@ func main() {
 	logg := logger.New(config.Logger.Level, config.Logger.File)
 	application := app.NewApp(logg, storageApp)
 
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer cancel()
+
+	if config.Server.IsHTTP {
+		serverAddress := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
+		server := http.NewServer(serverAddress, application, logg)
+
+		go func() {
+			<-ctx.Done()
+
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+
+			if err := server.Stop(ctx); err != nil {
+				logg.Error("failed to stop http server: " + err.Error())
+			}
+		}()
+
+		logg.Info("Microservice Rotation Banner is running...")
+
+		if err := server.Start(ctx); err != nil {
+			logg.Error("failed to start http server: " + err.Error())
+			cancel()
+			os.Exit(1)
+		}
+	}
+}
+
+func testFunc() {
 	// Кейсы для наполнения БД
 	//testCreateData(application)
 
-	// Регистрируем клик
-	err := application.RegisterClick(1, 1, 1)
-	err = application.RegisterClick(1, 1, 1)
-	err = application.RegisterClick(1, 2, 1)
-	if err != nil {
-		log.Fatalf("Failed to register click: %v", err)
-	}
-
-	// Получим статистику по баннерам
-	result, err := application.GetAndUpdateBanner(1, 1)
-	if err != nil {
-		log.Fatalf("Failed to calculate statistic banner: %v", err)
-	}
-
-	fmt.Println(result)
+	//// Регистрируем клик
+	//err := application.RegisterClick(1, 1, 1)
+	//err = application.RegisterClick(1, 1, 1)
+	//err = application.RegisterClick(1, 2, 1)
+	//if err != nil {
+	//	log.Fatalf("Failed to register click: %v", err)
+	//}
+	//
+	//// Получим статистику по баннерам
+	//result, err := application.GetAndUpdateBanner(1, 1)
+	//if err != nil {
+	//	log.Fatalf("Failed to calculate statistic banner: %v", err)
+	//}
+	//
+	//fmt.Println(result)
 }
 
 func testCreateData(application *app.App) {
