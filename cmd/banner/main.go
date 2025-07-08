@@ -128,7 +128,7 @@ func testCreateData(application *app.App) {
 		Title:       "Старики",
 		Description: "First Group",
 	}
-	err = application.CreateGroup(newGroup)
+	err = application.AddGroup(newGroup)
 	if err != nil {
 		panic("Failed to get banner")
 	}

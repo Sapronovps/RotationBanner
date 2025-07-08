@@ -35,7 +35,7 @@ func (a *App) GetBanner(id int) (banner *model.Banner, err error) {
 	return a.storage.Banner().GetBanner(id)
 }
 
-func (a *App) CreateGroup(group *model.Group) error {
+func (a *App) AddGroup(group *model.Group) error {
 	return a.storage.Banner().CreateGroup(group)
 }
 
@@ -43,7 +43,17 @@ func (a *App) GetGroup(id int) (group *model.Group, err error) {
 	return a.storage.Banner().GetGroup(id)
 }
 
-func (a *App) CreateBannerGroupStats(group *model.BannerGroupStats) error {
+func (a *App) AddBannerGroupStats(group *model.BannerGroupStats) error {
+	stat, err := a.GetBannerGroupStats(group.SlotID, group.BannerID, group.GroupID)
+	if err == nil {
+		group.ID = stat.ID
+		group.Shows = stat.Shows
+		group.Clicks = stat.Clicks
+		group.CreatedAt = stat.CreatedAt
+		group.UpdatedAt = stat.UpdatedAt
+		return nil
+	}
+
 	return a.storage.Banner().CreateBannerGroupStats(group)
 }
 
@@ -59,7 +69,7 @@ func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
 			BannerID: bannerID,
 			GroupID:  groupID,
 		}
-		err = a.CreateBannerGroupStats(stats)
+		err = a.AddBannerGroupStats(stats)
 		if err != nil {
 			return err
 		}

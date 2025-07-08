@@ -51,6 +51,20 @@ func (s *Server) Start(ctx context.Context) error {
 		getBanner(w, r, s.app)
 	}).Methods("GET")
 
+	// Создание группы
+	r.HandleFunc("/groups", func(w http.ResponseWriter, r *http.Request) {
+		addGroup(w, r, s.app)
+	}).Methods("POST")
+	// Получение группы
+	r.HandleFunc("/groups/{id}", func(w http.ResponseWriter, r *http.Request) {
+		getGroup(w, r, s.app)
+	}).Methods("GET")
+
+	// Создание статистики по баннеру в разрезе слота и группы
+	r.HandleFunc("/bannerGroupStats", func(w http.ResponseWriter, r *http.Request) {
+		addBannerGroupStats(w, r, s.app)
+	}).Methods("POST")
+
 	// Добавляем middleware для логирования
 	r.Use(s.loggingMiddleware)
 
