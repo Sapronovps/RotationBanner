@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-// CalculateBannerIdByMultiArmBandit Рассчитать ID баннера по алгоритму Однорукий бандит.
+// CalculateBannerIdByMultiArmBandit Рассчитать ID баннера по алгоритму многорукий бандит.
 func CalculateBannerIdByMultiArmBandit(bannersStats []*model.BannerGroupStats) int {
 	allShows := 0
 
