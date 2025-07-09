@@ -30,7 +30,8 @@ func (r *BannerRepository) UpdateBannerGroupStats(s *model.BannerGroupStats) err
                               banner_id=:banner_id, 
                               group_id=:group_id, 
                               clicks=:clicks, 
-                              shows=:shows 
+                              shows=:shows,
+                              updated_at=:updated_at
                           WHERE id = :id`
 	if _, err := r.storage.db.NamedExec(query, s); err != nil {
 		return err

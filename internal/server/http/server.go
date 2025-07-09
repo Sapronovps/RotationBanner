@@ -65,6 +65,11 @@ func (s *Server) Start(ctx context.Context) error {
 		addBannerGroupStats(w, r, s.app)
 	}).Methods("POST")
 
+	// Регистрация клика
+	r.HandleFunc("/registerClick", func(w http.ResponseWriter, r *http.Request) {
+		registerClick(w, r, s.app)
+	}).Methods("POST")
+
 	// Добавляем middleware для логирования
 	r.Use(s.loggingMiddleware)
 

@@ -7,6 +7,7 @@ import (
 	"github.com/Sapronovps/RotationBanner/internal/storage"
 	"go.uber.org/zap"
 	"sync"
+	"time"
 )
 
 type App struct {
@@ -76,6 +77,7 @@ func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
 	}
 	stats.Clicks++
 	stats.Shows++
+	stats.UpdatedAt = time.Now()
 
 	return a.storage.Banner().UpdateBannerGroupStats(stats)
 }
