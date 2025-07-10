@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/Sapronovps/RotationBanner/internal/broker/kafka"
 	"github.com/Sapronovps/RotationBanner/internal/model"
 	"github.com/Sapronovps/RotationBanner/internal/service"
 	"github.com/Sapronovps/RotationBanner/internal/storage"
@@ -11,17 +12,31 @@ import (
 )
 
 type App struct {
-	mu      sync.Mutex
-	logger  *zap.Logger
-	storage storage.Storage
+	mu               sync.Mutex
+	logger           *zap.Logger
+	storage          storage.Storage
+	kafkaProducer    *kafka.KafkaProducer
+	kafkaTopicEvents string
 }
 
-func NewApp(logger *zap.Logger, storage storage.Storage) *App {
-	return &App{logger: logger, storage: storage}
+func NewApp(logger *zap.Logger, storage storage.Storage, kafkaProducer *kafka.KafkaProducer, kafkaTopicEvents string) *App {
+	return &App{logger: logger, storage: storage, kafkaProducer: kafkaProducer, kafkaTopicEvents: kafkaTopicEvents}
 }
 
 func (a *App) AddSlot(slot *model.Slot) error {
-	return a.storage.Banner().CreateSlot(slot)
+	err := a.storage.Banner().CreateSlot(slot)
+	errSend := error(nil)
+	if err != nil {
+		errSend = a.kafkaProducer.SendMessage(a.kafkaTopicEvents, "Ошибка создания слота: "+err.Error())
+	} else {
+		errSend = a.kafkaProducer.SendMessage(a.kafkaTopicEvents, fmt.Sprintf("Слот успешно создан с ID: %d", slot.ID))
+	}
+
+	if errSend != nil {
+		a.logger.Error("Ошибка отправки события в kafka" + errSend.Error())
+	}
+
+	return err
 }
 
 func (a *App) GetSlot(id int) (slot *model.Slot, err error) {

@@ -23,6 +23,12 @@ type LoggerConf struct {
 	Level string
 }
 
+type KafkaConf struct {
+	Brokers  string
+	RetryMax int
+	Topic    string
+}
+
 type DBConf struct {
 	Host     string
 	Port     string

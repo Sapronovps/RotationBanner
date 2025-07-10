@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Sapronovps/RotationBanner/internal/app"
+	"github.com/Sapronovps/RotationBanner/internal/broker/kafka"
 	"github.com/Sapronovps/RotationBanner/internal/logger"
 	"github.com/Sapronovps/RotationBanner/internal/model"
 	"github.com/Sapronovps/RotationBanner/internal/server/http"
@@ -43,7 +44,11 @@ func main() {
 	}
 
 	logg := logger.New(config.Logger.Level, config.Logger.File)
-	application := app.NewApp(logg, storageApp)
+	kafkaProducer, err := kafka.NewKafkaProducer("localhost:9092", 5)
+	if err != nil {
+		logg.Fatal("failed create kafka producer: " + err.Error())
+	}
+	application := app.NewApp(logg, storageApp, kafkaProducer, "events")
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
