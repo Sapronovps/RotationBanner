@@ -82,7 +82,7 @@ func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
 	return a.storage.Banner().UpdateBannerGroupStats(stats)
 }
 
-func (a *App) GetAndUpdateBanner(slotID, groupID int) (banner *model.Banner, err error) {
+func (a *App) GetBannerByMultiArmBandit(slotID, groupID int) (banner *model.Banner, err error) {
 	bannersStats := a.storage.Banner().GetBannersGroupStats(slotID, groupID)
 	if bannersStats == nil {
 		return nil, fmt.Errorf("banner group stats not found slot id: %d and group id: %d", slotID, groupID)
@@ -91,7 +91,23 @@ func (a *App) GetAndUpdateBanner(slotID, groupID int) (banner *model.Banner, err
 	bannerID := service.CalculateBannerIdByMultiArmBandit(bannersStats)
 
 	if bannerID > 0 {
-		return a.storage.Banner().GetBanner(bannerID)
+		banner, err := a.storage.Banner().GetBanner(bannerID)
+		if err != nil {
+			return nil, err
+		}
+		stats, err := a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
+		if err != nil {
+			return nil, err
+		}
+		stats.Shows++
+		stats.UpdatedAt = time.Now()
+
+		err = a.storage.Banner().UpdateBannerGroupStats(stats)
+		if err != nil {
+			return nil, err
+		}
+
+		return banner, nil
 	}
 
 	return nil, fmt.Errorf("banner group stats not found")

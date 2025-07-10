@@ -162,6 +162,34 @@ func addBannerGroupStats(w http.ResponseWriter, r *http.Request, app *app.App) {
 	json.NewEncoder(w).Encode(bannerGroupStats)
 }
 
+func getBannerGroupStats(w http.ResponseWriter, r *http.Request, app *app.App) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	var BannerStatsRequest request.BannerStatsRequest
+	err := json.NewDecoder(r.Body).Decode(&BannerStatsRequest)
+	if err != nil ||
+		BannerStatsRequest.SlotID == 0 ||
+		BannerStatsRequest.BannerID == 0 ||
+		BannerStatsRequest.GroupID == 0 {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	stats, err := app.GetBannerGroupStats(
+		BannerStatsRequest.SlotID,
+		BannerStatsRequest.BannerID,
+		BannerStatsRequest.GroupID)
+	if err != nil {
+		http.Error(w, "Error getting banner group stats: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(stats)
+}
+
 func registerClick(w http.ResponseWriter, r *http.Request, app *app.App) {
 	lock.Lock()
 	defer lock.Unlock()
@@ -185,4 +213,28 @@ func registerClick(w http.ResponseWriter, r *http.Request, app *app.App) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("{success: true}"))
+}
+
+func getBannerByMultiArmBandit(w http.ResponseWriter, r *http.Request, app *app.App) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	var GetBannerRequest request.GetBannerRequest
+	err := json.NewDecoder(r.Body).Decode(&GetBannerRequest)
+	if err != nil ||
+		GetBannerRequest.SlotID == 0 ||
+		GetBannerRequest.GroupID == 0 {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	banner, err := app.GetBannerByMultiArmBandit(GetBannerRequest.SlotID, GetBannerRequest.GroupID)
+	if err != nil {
+		http.Error(w, "Error getting banner: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(banner)
 }

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package banner;
+
+option go_package = "./;internalgrpcprotobuf";
+
+service BannerService {
+  rpc AddSlot(RequestAddSlot) returns (ResponseAddSlot);
+}
+
+message RequestAddSlot {
+  string Title = 1;
+  string Description = 2;
+}
+
+message ResponseAddSlot {
+  int64 ID = 1;
+  string Title = 2;
+  string Description = 3;
+}

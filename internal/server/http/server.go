@@ -64,10 +64,19 @@ func (s *Server) Start(ctx context.Context) error {
 	r.HandleFunc("/bannerGroupStats", func(w http.ResponseWriter, r *http.Request) {
 		addBannerGroupStats(w, r, s.app)
 	}).Methods("POST")
+	// Получение статистики по баннеру в разрезе слота и группы
+	r.HandleFunc("/getBannerGroupStats", func(w http.ResponseWriter, r *http.Request) {
+		getBannerGroupStats(w, r, s.app)
+	}).Methods("POST")
 
 	// Регистрация клика
 	r.HandleFunc("/registerClick", func(w http.ResponseWriter, r *http.Request) {
 		registerClick(w, r, s.app)
+	}).Methods("POST")
+
+	// Получение баннера по алгоритму "Многорукий бандит"
+	r.HandleFunc("/getBannerByMultiArmBandit", func(w http.ResponseWriter, r *http.Request) {
+		getBannerByMultiArmBandit(w, r, s.app)
 	}).Methods("POST")
 
 	// Добавляем middleware для логирования

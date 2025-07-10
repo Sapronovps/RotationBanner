@@ -5,3 +5,8 @@ type BannerStatsRequest struct {
 	GroupID  int
 	BannerID int
 }
+
+type GetBannerRequest struct {
+	SlotID  int
+	GroupID int
+}

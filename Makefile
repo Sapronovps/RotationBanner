@@ -25,3 +25,7 @@ migrate-up:
 # Откатить миграции с помощью goose
 migrate-down:
 	goose down -dir migrations
+
+# Сгенерировать реализацию Proto
+proto-gen:
+	cd api && protoc --go_out=../internal/server/grpc/protobuf --go_opt=paths=source_relative --go-grpc_out=../internal/server/grpc/protobuf --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative BannerService.proto

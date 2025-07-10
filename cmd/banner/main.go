@@ -86,7 +86,7 @@ func testFunc() {
 	//}
 	//
 	//// Получим статистику по баннерам
-	//result, err := application.GetAndUpdateBanner(1, 1)
+	//result, err := application.GetBannerByMultiArmBandit(1, 1)
 	//if err != nil {
 	//	log.Fatalf("Failed to calculate statistic banner: %v", err)
 	//}
