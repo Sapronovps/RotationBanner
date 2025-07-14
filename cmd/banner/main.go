@@ -8,6 +8,7 @@ import (
 	"github.com/Sapronovps/RotationBanner/internal/broker/kafka"
 	"github.com/Sapronovps/RotationBanner/internal/logger"
 	"github.com/Sapronovps/RotationBanner/internal/model"
+	"github.com/Sapronovps/RotationBanner/internal/server/grpc"
 	"github.com/Sapronovps/RotationBanner/internal/server/http"
 	"github.com/Sapronovps/RotationBanner/internal/storage"
 	"github.com/Sapronovps/RotationBanner/internal/storage/memory"
@@ -72,6 +73,27 @@ func main() {
 
 		if err := server.Start(ctx); err != nil {
 			logg.Error("failed to start http server: " + err.Error())
+			cancel()
+			os.Exit(1)
+		}
+	} else {
+		server := grpc.NewBannerGrpcServer(config.Server.AddressGrpc, logg, application)
+
+		go func() {
+			<-ctx.Done()
+
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			defer cancel()
+
+			if err := server.Stop(ctx); err != nil {
+				logg.Error("failed to stop grpc server: " + err.Error())
+			}
+		}()
+
+		logg.Info("Microservice Rotation Banner is running...")
+
+		if err := server.Start(ctx); err != nil {
+			logg.Error("failed to start grpc server: " + err.Error())
 			cancel()
 			os.Exit(1)
 		}

@@ -5,16 +5,98 @@ package banner;
 option go_package = "./;internalgrpcprotobuf";
 
 service BannerService {
-  rpc AddSlot(RequestAddSlot) returns (ResponseAddSlot);
+  rpc AddSlot(RequestAddSlot) returns (ResponseSlot);
+  rpc GetSlot(RequestGetSlot) returns (ResponseSlot);
+  rpc AddBanner(RequestAddBanner) returns (ResponseBanner);
+  rpc GetBanner(RequestGetBanner) returns (ResponseBanner);
+  rpc AddGroup(RequestAddGroup) returns (ResponseGroup);
+  rpc GetGroup(RequestGetGroup) returns (ResponseGroup);
+  rpc AddBannerGroupStats(RequestAddBannerGroupStats) returns (ResponseBannerGroupStats);
+  rpc GetBannerGroupStats(RequestGetBannerGroupStats) returns (ResponseBannerGroupStats);
+  rpc RegisterClick(RequestRegisterClick) returns (ResponseRegisterClick);
+  rpc GetBannerByMultiArmBandit(RequestGetBannerByMultiArmBandit) returns (ResponseBanner);
 }
 
 message RequestAddSlot {
+  string Description = 2;
+}
+
+message RequestGetSlot {
+  int64 ID = 1;
+}
+
+message ResponseSlot {
+  int64 ID = 1;
+  string Description = 2;
+  string CreatedAt = 3;
+}
+
+message RequestAddBanner {
   string Title = 1;
   string Description = 2;
 }
 
-message ResponseAddSlot {
+message RequestGetBanner {
+  int64 ID = 1;
+}
+
+message ResponseBanner {
   int64 ID = 1;
   string Title = 2;
   string Description = 3;
+  string CreatedAt = 4;
+}
+
+message RequestAddGroup {
+  string Title = 1;
+  string Description = 2;
+}
+
+message RequestGetGroup {
+  int64 ID = 1;
+}
+
+message ResponseGroup {
+  int64 ID = 1;
+  string Title = 2;
+  string Description = 3;
+  string CreatedAt = 4;
+}
+
+message RequestAddBannerGroupStats {
+  int64 SlotID = 1;
+  int64 BannerID = 2;
+  int64 GroupID = 3;
+}
+
+message RequestGetBannerGroupStats {
+  int64 SlotID = 1;
+  int64 BannerID = 2;
+  int64 GroupID = 3;
+}
+
+message ResponseBannerGroupStats {
+  int64 ID = 1;
+  int64 SlotID = 2;
+  int64 BannerID = 3;
+  int64 GroupID = 4;
+  int64 Shows = 5;
+  int64 Clicks = 6;
+  string CreatedAt = 7;
+  string UpdatedAt = 8;
+}
+
+message RequestRegisterClick {
+  int64 SlotID = 1;
+  int64 BannerID = 2;
+  int64 GroupID = 3;
+}
+
+message ResponseRegisterClick {
+  int64 BannerID = 1;
+}
+
+message RequestGetBannerByMultiArmBandit {
+  int64 SlotID = 1;
+  int64 GroupID = 2;
 }
