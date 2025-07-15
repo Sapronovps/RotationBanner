@@ -35,3 +35,6 @@ install-lint-deps:
 
 lint: install-lint-deps
 	golangci-lint run ./...
+
+test:
+	go test -race ./internal/...
