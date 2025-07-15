@@ -1,16 +1,17 @@
 package service
 
 import (
+	"testing"
+
 	"github.com/Sapronovps/RotationBanner/internal/model"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestCalculateBanner(t *testing.T) {
 	tests := []struct {
 		name             string
 		bannerGroupStats []*model.BannerGroupStats
-		expectedBannerId int
+		expectedBannerID int
 	}{
 		{
 			name: "Когда у всех баннеров 0 просмотров и кликов",
@@ -19,7 +20,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 0, Shows: 0},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 0},
 			},
-			expectedBannerId: 1,
+			expectedBannerID: 1,
 		},
 		{
 			name: "Когда у одного баннера есть просмотры, но нет кликов",
@@ -28,7 +29,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 0, Shows: 0},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 0},
 			},
-			expectedBannerId: 2,
+			expectedBannerID: 2,
 		},
 		{
 			name: "Когда у двоих баннеров есть просмотры, но нет кликов",
@@ -37,7 +38,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 0, Shows: 2},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 0},
 			},
-			expectedBannerId: 3,
+			expectedBannerID: 3,
 		},
 		{
 			name: "Когда у всех баннеров разное количество просмотров и нет кликов",
@@ -46,7 +47,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 0, Shows: 4},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 2},
 			},
-			expectedBannerId: 3,
+			expectedBannerID: 3,
 		},
 		{
 			name: "Когда у одного баннера есть клик",
@@ -55,7 +56,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 0, Shows: 4},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 4},
 			},
-			expectedBannerId: 1,
+			expectedBannerID: 1,
 		},
 		{
 			name: "Когда у одного баннера есть клик, но у него много просмотров",
@@ -64,7 +65,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 0, Shows: 4},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 4},
 			},
-			expectedBannerId: 2,
+			expectedBannerID: 2,
 		},
 		{
 			name: "Когда у двоих баннеров есть клик",
@@ -73,7 +74,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 1, Shows: 4},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 0, Shows: 4},
 			},
-			expectedBannerId: 2,
+			expectedBannerID: 2,
 		},
 		{
 			name: "Когда у всех баннеров есть клик",
@@ -82,7 +83,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 1, Shows: 5},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 1, Shows: 4},
 			},
-			expectedBannerId: 3,
+			expectedBannerID: 3,
 		},
 		{
 			name: "Когда у одного баннера много просмотров и кликов",
@@ -91,7 +92,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 59, Shows: 9000},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 9, Shows: 3000},
 			},
-			expectedBannerId: 1,
+			expectedBannerID: 1,
 		},
 		{
 			name: "Когда у всех баннеров одинаковое количество просмотров и кликов",
@@ -100,7 +101,7 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 10, Shows: 50},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 10, Shows: 50},
 			},
-			expectedBannerId: 1,
+			expectedBannerID: 1,
 		},
 		{
 			name: "Когда у одного баннера больше всех просмотров и мало кликов",
@@ -109,14 +110,14 @@ func TestCalculateBanner(t *testing.T) {
 				{SlotID: 1, BannerID: 2, GroupID: 1, Clicks: 60, Shows: 1500},
 				{SlotID: 1, BannerID: 3, GroupID: 1, Clicks: 100, Shows: 800},
 			},
-			expectedBannerId: 3,
+			expectedBannerID: 3,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			bannerID := CalculateBannerIdByMultiArmBandit(test.bannerGroupStats)
-			require.Equal(t, test.expectedBannerId, bannerID)
+			bannerID := CalculateBannerIDByMultiArmBandit(test.bannerGroupStats)
+			require.Equal(t, test.expectedBannerID, bannerID)
 		})
 	}
 }

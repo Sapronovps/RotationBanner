@@ -2,8 +2,8 @@ package sql
 
 import (
 	"github.com/Sapronovps/RotationBanner/internal/storage"
-	"github.com/jmoiron/sqlx"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // for postgres
 )
 

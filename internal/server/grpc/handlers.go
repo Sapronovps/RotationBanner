@@ -8,7 +8,9 @@ import (
 	"time"
 )
 
-func (s *BannerGrpcServer) AddSlot(_ context.Context, req *internalgrpcprotobuf.RequestAddSlot) (*internalgrpcprotobuf.ResponseSlot, error) {
+func (s *BannerGrpcServer) AddSlot(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestAddSlot) (*internalgrpcprotobuf.ResponseSlot, error) {
 	var slot model.Slot
 	slot.Description = req.GetDescription()
 
@@ -27,7 +29,9 @@ func (s *BannerGrpcServer) AddSlot(_ context.Context, req *internalgrpcprotobuf.
 	return response, nil
 }
 
-func (s *BannerGrpcServer) GetSlot(_ context.Context, req *internalgrpcprotobuf.RequestGetSlot) (*internalgrpcprotobuf.ResponseSlot, error) {
+func (s *BannerGrpcServer) GetSlot(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestGetSlot) (*internalgrpcprotobuf.ResponseSlot, error) {
 	slot, err := s.app.GetSlot(int(req.GetID()))
 	if err != nil {
 		s.logger.Error("failed to get slot", zap.Error(err))
@@ -43,7 +47,9 @@ func (s *BannerGrpcServer) GetSlot(_ context.Context, req *internalgrpcprotobuf.
 	return response, nil
 }
 
-func (s *BannerGrpcServer) AddBanner(_ context.Context, req *internalgrpcprotobuf.RequestAddBanner) (*internalgrpcprotobuf.ResponseBanner, error) {
+func (s *BannerGrpcServer) AddBanner(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestAddBanner) (*internalgrpcprotobuf.ResponseBanner, error) {
 	var banner model.Banner
 	banner.Title = req.GetTitle()
 	banner.Description = req.GetDescription()
@@ -64,7 +70,9 @@ func (s *BannerGrpcServer) AddBanner(_ context.Context, req *internalgrpcprotobu
 	return response, nil
 }
 
-func (s *BannerGrpcServer) GetBanner(_ context.Context, req *internalgrpcprotobuf.RequestGetBanner) (*internalgrpcprotobuf.ResponseBanner, error) {
+func (s *BannerGrpcServer) GetBanner(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestGetBanner) (*internalgrpcprotobuf.ResponseBanner, error) {
 	banner, err := s.app.GetBanner(int(req.GetID()))
 	if err != nil {
 		s.logger.Error("failed to get banner", zap.Error(err))
@@ -81,7 +89,9 @@ func (s *BannerGrpcServer) GetBanner(_ context.Context, req *internalgrpcprotobu
 	return response, nil
 }
 
-func (s *BannerGrpcServer) AddGroup(_ context.Context, req *internalgrpcprotobuf.RequestAddGroup) (*internalgrpcprotobuf.ResponseGroup, error) {
+func (s *BannerGrpcServer) AddGroup(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestAddGroup) (*internalgrpcprotobuf.ResponseGroup, error) {
 	var group model.Group
 	group.Title = req.GetTitle()
 	group.Description = req.GetDescription()
@@ -102,7 +112,9 @@ func (s *BannerGrpcServer) AddGroup(_ context.Context, req *internalgrpcprotobuf
 	return response, nil
 }
 
-func (s *BannerGrpcServer) GetGroup(_ context.Context, req *internalgrpcprotobuf.RequestGetGroup) (*internalgrpcprotobuf.ResponseGroup, error) {
+func (s *BannerGrpcServer) GetGroup(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestGetGroup) (*internalgrpcprotobuf.ResponseGroup, error) {
 	group, err := s.app.GetGroup(int(req.GetID()))
 	if err != nil {
 		s.logger.Error("failed to get banner", zap.Error(err))
@@ -119,7 +131,9 @@ func (s *BannerGrpcServer) GetGroup(_ context.Context, req *internalgrpcprotobuf
 	return response, nil
 }
 
-func (s *BannerGrpcServer) AddBannerGroupStats(_ context.Context, req *internalgrpcprotobuf.RequestAddBannerGroupStats) (*internalgrpcprotobuf.ResponseBannerGroupStats, error) {
+func (s *BannerGrpcServer) AddBannerGroupStats(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestAddBannerGroupStats) (*internalgrpcprotobuf.ResponseBannerGroupStats, error) {
 	var bannerGroupStats model.BannerGroupStats
 	bannerGroupStats.SlotID = int(req.GetSlotID())
 	bannerGroupStats.BannerID = int(req.GetBannerID())
@@ -145,7 +159,9 @@ func (s *BannerGrpcServer) AddBannerGroupStats(_ context.Context, req *internalg
 	return response, nil
 }
 
-func (s *BannerGrpcServer) GetBannerGroupStats(_ context.Context, req *internalgrpcprotobuf.RequestGetBannerGroupStats) (*internalgrpcprotobuf.ResponseBannerGroupStats, error) {
+func (s *BannerGrpcServer) GetBannerGroupStats(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestGetBannerGroupStats) (*internalgrpcprotobuf.ResponseBannerGroupStats, error) {
 	bannerGroupStats, err := s.app.GetBannerGroupStats(int(req.GetSlotID()), int(req.GetBannerID()), int(req.GetGroupID()))
 	if err != nil {
 		s.logger.Error("failed to get banner group stats", zap.Error(err))
@@ -166,7 +182,9 @@ func (s *BannerGrpcServer) GetBannerGroupStats(_ context.Context, req *internalg
 	return response, nil
 }
 
-func (s *BannerGrpcServer) RegisterClick(_ context.Context, req *internalgrpcprotobuf.RequestRegisterClick) (*internalgrpcprotobuf.ResponseRegisterClick, error) {
+func (s *BannerGrpcServer) RegisterClick(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestRegisterClick) (*internalgrpcprotobuf.ResponseRegisterClick, error) {
 	err := s.app.RegisterClick(int(req.GetSlotID()), int(req.GetBannerID()), int(req.GetGroupID()))
 	if err != nil {
 		s.logger.Error("failed to register click", zap.Error(err))
@@ -180,7 +198,9 @@ func (s *BannerGrpcServer) RegisterClick(_ context.Context, req *internalgrpcpro
 	return response, nil
 }
 
-func (s *BannerGrpcServer) GetBannerByMultiArmBandit(_ context.Context, req *internalgrpcprotobuf.RequestGetBannerByMultiArmBandit) (*internalgrpcprotobuf.ResponseBanner, error) {
+func (s *BannerGrpcServer) GetBannerByMultiArmBandit(
+	_ context.Context,
+	req *internalgrpcprotobuf.RequestGetBannerByMultiArmBandit) (*internalgrpcprotobuf.ResponseBanner, error) {
 	banner, err := s.app.GetBannerByMultiArmBandit(int(req.GetSlotID()), int(req.GetGroupID()))
 	if err != nil {
 		s.logger.Error("failed to get banner by arm bandit", zap.Error(err))

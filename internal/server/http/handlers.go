@@ -2,13 +2,14 @@ package http
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+	"sync"
+
 	"github.com/Sapronovps/RotationBanner/internal/app"
 	"github.com/Sapronovps/RotationBanner/internal/model"
 	"github.com/Sapronovps/RotationBanner/internal/server/http/request"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strconv"
-	"sync"
 )
 
 var (

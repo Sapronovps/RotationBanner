@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"go.uber.org/zap"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 func New(level, file string) *zap.Logger {

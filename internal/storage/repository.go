@@ -11,8 +11,8 @@ type BannerRepository interface {
 	DeleteBanner(id int) error                                                          // Удаление баннера
 	CreateGroup(g *model.Group) error                                                   // Создание группы
 	GetGroup(id int) (*model.Group, error)                                              // Получение группы
-	CreateBannerGroupStats(stats *model.BannerGroupStats) error                         // Создание связки Slot -> Banner -> Group
+	CreateBannerGroupStats(stats *model.BannerGroupStats) error                         // Создание связки
 	GetBannerGroupStats(slotID, bannerID, groupID int) (*model.BannerGroupStats, error) // Получение связки
 	UpdateBannerGroupStats(stats *model.BannerGroupStats) error                         // Обновление статистики
-	GetBannersGroupStats(slotId, groupId int) (bannersStats []*model.BannerGroupStats)  // Получение связок по-заданному ID слота и ID группы
+	GetBannersGroupStats(slotID, groupID int) (bannersStats []*model.BannerGroupStats)  // Получение связок
 }

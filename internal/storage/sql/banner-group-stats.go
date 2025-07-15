@@ -39,10 +39,10 @@ func (r *BannerRepository) UpdateBannerGroupStats(s *model.BannerGroupStats) err
 	return nil
 }
 
-func (r *BannerRepository) GetBannersGroupStats(slotId, groupId int) (bannersStats []*model.BannerGroupStats) {
+func (r *BannerRepository) GetBannersGroupStats(slotID, groupID int) (bannersStats []*model.BannerGroupStats) {
 	var bannersGroupStats []*model.BannerGroupStats
 	_ = r.storage.db.Select(&bannersGroupStats,
-		"SELECT * FROM banner_group_stats WHERE slot_id = $1 AND group_id = $2", slotId, groupId)
+		"SELECT * FROM banner_group_stats WHERE slot_id = $1 AND group_id = $2", slotID, groupID)
 
 	return bannersGroupStats
 }

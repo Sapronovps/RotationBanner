@@ -4,10 +4,11 @@ import (
 	"context"
 	"github.com/Sapronovps/RotationBanner/internal/app"
 	internalgrpcprotobuf "github.com/Sapronovps/RotationBanner/internal/server/grpc/protobuf"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"net"
 	"os"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 type BannerGrpcServer struct {

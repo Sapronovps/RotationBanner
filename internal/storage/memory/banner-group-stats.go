@@ -2,6 +2,7 @@ package memory
 
 import (
 	"fmt"
+
 	"github.com/Sapronovps/RotationBanner/internal/model"
 )
 

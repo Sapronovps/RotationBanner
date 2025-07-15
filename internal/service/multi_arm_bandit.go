@@ -2,14 +2,15 @@ package service
 
 import (
 	"fmt"
-	"github.com/Sapronovps/RotationBanner/internal/model"
 	"math"
 	"sort"
 	"sync"
+
+	"github.com/Sapronovps/RotationBanner/internal/model"
 )
 
-// CalculateBannerIdByMultiArmBandit Рассчитать ID баннера по алгоритму многорукий бандит.
-func CalculateBannerIdByMultiArmBandit(bannersStats []*model.BannerGroupStats) int {
+// CalculateBannerIDByMultiArmBandit Рассчитать ID баннера по алгоритму многорукий бандит.
+func CalculateBannerIDByMultiArmBandit(bannersStats []*model.BannerGroupStats) int {
 	allShows := 0
 
 	for _, stats := range bannersStats {
@@ -51,10 +52,10 @@ func CalculateBannerIdByMultiArmBandit(bannersStats []*model.BannerGroupStats) i
 
 	fmt.Println(weightBanners)
 
-	return calculateBannerIdByMaxWeight(weightBanners)
+	return calculateBannerIDByMaxWeight(weightBanners)
 }
 
-func calculateBannerIdByMaxWeight(weightBanners map[int]float64) int {
+func calculateBannerIDByMaxWeight(weightBanners map[int]float64) int {
 	maxWeight := 0.0
 	needBannerID := 0
 	sortedKeys := iterateSorted(weightBanners, func(a, b int) bool { return a < b })

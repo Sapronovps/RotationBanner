@@ -6,19 +6,18 @@ import (
 	"github.com/Sapronovps/RotationBanner/internal/model"
 	"github.com/Sapronovps/RotationBanner/internal/service"
 	"github.com/Sapronovps/RotationBanner/internal/storage"
-	"go.uber.org/zap"
-	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type App struct {
-	mu            sync.Mutex
 	logger        *zap.Logger
 	storage       storage.Storage
-	kafkaProducer *kafka.KafkaProducer
+	kafkaProducer *kafka.Producer
 }
 
-func NewApp(logger *zap.Logger, storage storage.Storage, kafkaProducer *kafka.KafkaProducer) *App {
+func NewApp(logger *zap.Logger, storage storage.Storage, kafkaProducer *kafka.Producer) *App {
 	return &App{logger: logger, storage: storage, kafkaProducer: kafkaProducer}
 }
 
@@ -129,7 +128,7 @@ func (a *App) GetBannerByMultiArmBandit(slotID, groupID int) (banner *model.Bann
 		return nil, fmt.Errorf("banner group stats not found slot id: %d and group id: %d", slotID, groupID)
 	}
 
-	bannerID := service.CalculateBannerIdByMultiArmBandit(bannersStats)
+	bannerID := service.CalculateBannerIDByMultiArmBandit(bannersStats)
 
 	if bannerID > 0 {
 		banner, err := a.storage.Banner().GetBanner(bannerID)

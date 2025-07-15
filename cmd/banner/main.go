@@ -13,6 +13,7 @@ import (
 	"github.com/Sapronovps/RotationBanner/internal/storage/memory"
 	"github.com/Sapronovps/RotationBanner/internal/storage/sql"
 	_ "github.com/lib/pq" // for postgres
+	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
@@ -53,6 +54,10 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
+	runServer(ctx, logg, &config, application)
+}
+
+func runServer(ctx context.Context, logg *zap.Logger, config *Config, application *app.App) {
 	if config.Server.IsHTTP {
 		serverAddress := fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port)
 		server := http.NewServer(serverAddress, application, logg)
@@ -72,29 +77,26 @@ func main() {
 
 		if err := server.Start(ctx); err != nil {
 			logg.Error("failed to start http server: " + err.Error())
-			cancel()
-			os.Exit(1)
 		}
-	} else {
-		server := grpc.NewBannerGrpcServer(config.Server.AddressGrpc, logg, application)
+		os.Exit(1)
+	}
+	server := grpc.NewBannerGrpcServer(config.Server.AddressGrpc, logg, application)
 
-		go func() {
-			<-ctx.Done()
+	go func() {
+		<-ctx.Done()
 
-			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-			defer cancel()
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
 
-			if err := server.Stop(ctx); err != nil {
-				logg.Error("failed to stop grpc server: " + err.Error())
-			}
-		}()
-
-		logg.Info("Microservice Rotation Banner is running...")
-
-		if err := server.Start(ctx); err != nil {
-			logg.Error("failed to start grpc server: " + err.Error())
-			cancel()
-			os.Exit(1)
+		if err := server.Stop(ctx); err != nil {
+			logg.Error("failed to stop grpc server: " + err.Error())
 		}
+	}()
+
+	logg.Info("Microservice Rotation Banner is running...")
+
+	if err := server.Start(ctx); err != nil {
+		logg.Error("failed to start grpc server: " + err.Error())
+		os.Exit(1)
 	}
 }

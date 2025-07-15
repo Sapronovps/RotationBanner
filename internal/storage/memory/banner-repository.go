@@ -1,8 +1,9 @@
 package memory
 
 import (
-	"github.com/Sapronovps/RotationBanner/internal/model"
 	"sync"
+
+	"github.com/Sapronovps/RotationBanner/internal/model"
 )
 
 type BannerRepository struct {
