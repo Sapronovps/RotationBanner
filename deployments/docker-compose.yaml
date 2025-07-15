@@ -1,6 +1,27 @@
 version: "3"
 
 services:
+  banner:
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+    container_name: banner-app
+    environment:
+      DB_HOST: ${POSTGRES_HOST:-postgres}
+      SERVER_PORT: 8081
+      SERVER_ISHTTP: true
+      KAFKA_BROKERS: "kafka:29092"
+    ports:
+      - "8081:8081"
+      - "50051:50051"
+    networks:
+      - banner-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+
   postgres:
     image: postgres:17.5
     container_name: postgres
@@ -10,6 +31,11 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password} # пароль
     ports:
       - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d banner" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_banner_data:/var/lib/postgresql/data
     networks:
@@ -39,6 +65,11 @@ services:
       CLUSTER_ID: "ZHVtbXktY2x1c3Rlci1pZA==" # кастомный ID, можно любой UUID
     volumes:
       - /tmp/kraft-logs:/tmp/kraft-combined-logs
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
       - banner-network
 

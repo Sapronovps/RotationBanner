@@ -1,5 +1,5 @@
 Server:
-  Host: 127.0.0.1
+  Host:
   Port: 8081
   AddressGrpc: ":50051"
   IsHTTP: false
