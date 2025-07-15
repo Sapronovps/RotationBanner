@@ -7,7 +7,6 @@ import (
 	"github.com/Sapronovps/RotationBanner/internal/app"
 	"github.com/Sapronovps/RotationBanner/internal/broker/kafka"
 	"github.com/Sapronovps/RotationBanner/internal/logger"
-	"github.com/Sapronovps/RotationBanner/internal/model"
 	"github.com/Sapronovps/RotationBanner/internal/server/grpc"
 	"github.com/Sapronovps/RotationBanner/internal/server/http"
 	"github.com/Sapronovps/RotationBanner/internal/storage"
@@ -45,11 +44,11 @@ func main() {
 	}
 
 	logg := logger.New(config.Logger.Level, config.Logger.File)
-	kafkaProducer, err := kafka.NewKafkaProducer("localhost:9092", 5)
+	kafkaProducer, err := kafka.NewKafkaProducer(config.Kafka.Brokers, config.Kafka.EventsTopic, config.Kafka.RetryMax)
 	if err != nil {
 		logg.Fatal("failed create kafka producer: " + err.Error())
 	}
-	application := app.NewApp(logg, storageApp, kafkaProducer, "events")
+	application := app.NewApp(logg, storageApp, kafkaProducer)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
@@ -97,66 +96,5 @@ func main() {
 			cancel()
 			os.Exit(1)
 		}
-	}
-}
-
-func testFunc() {
-	// Кейсы для наполнения БД
-	//testCreateData(application)
-
-	//// Регистрируем клик
-	//err := application.RegisterClick(1, 1, 1)
-	//err = application.RegisterClick(1, 1, 1)
-	//err = application.RegisterClick(1, 2, 1)
-	//if err != nil {
-	//	log.Fatalf("Failed to register click: %v", err)
-	//}
-	//
-	//// Получим статистику по баннерам
-	//result, err := application.GetBannerByMultiArmBandit(1, 1)
-	//if err != nil {
-	//	log.Fatalf("Failed to calculate statistic banner: %v", err)
-	//}
-	//
-	//fmt.Println(result)
-}
-
-func testCreateData(application *app.App) {
-	// Кейсы для наполнения БД
-	// Создаем СЛОТ
-	newSlot := model.Slot{
-		Description: "Test",
-	}
-	err := application.AddSlot(&newSlot)
-	if err != nil {
-		panic("Failed to add new slot")
-	}
-
-	// Создаем БАННЕР
-	newBanner := model.Banner{
-		Description: "First Banner",
-	}
-	err = application.AddBanner(&newBanner)
-	if err != nil {
-		panic("Failed to add new banner")
-	}
-
-	// Создаем 2 БАННЕР
-	newBanner2 := model.Banner{
-		Description: "Second Banner",
-	}
-	err = application.AddBanner(&newBanner2)
-	if err != nil {
-		panic("Failed to add new banner")
-	}
-
-	// Создаем ГРУППУ
-	newGroup := &model.Group{
-		Title:       "Старики",
-		Description: "First Group",
-	}
-	err = application.AddGroup(newGroup)
-	if err != nil {
-		panic("Failed to get banner")
 	}
 }

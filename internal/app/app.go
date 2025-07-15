@@ -12,69 +12,92 @@ import (
 )
 
 type App struct {
-	mu               sync.Mutex
-	logger           *zap.Logger
-	storage          storage.Storage
-	kafkaProducer    *kafka.KafkaProducer
-	kafkaTopicEvents string
+	mu            sync.Mutex
+	logger        *zap.Logger
+	storage       storage.Storage
+	kafkaProducer *kafka.KafkaProducer
 }
 
-func NewApp(logger *zap.Logger, storage storage.Storage, kafkaProducer *kafka.KafkaProducer, kafkaTopicEvents string) *App {
-	return &App{logger: logger, storage: storage, kafkaProducer: kafkaProducer, kafkaTopicEvents: kafkaTopicEvents}
+func NewApp(logger *zap.Logger, storage storage.Storage, kafkaProducer *kafka.KafkaProducer) *App {
+	return &App{logger: logger, storage: storage, kafkaProducer: kafkaProducer}
 }
 
 func (a *App) AddSlot(slot *model.Slot) error {
 	err := a.storage.Banner().CreateSlot(slot)
-	errSend := error(nil)
-	if err != nil {
-		errSend = a.kafkaProducer.SendMessage(a.kafkaTopicEvents, "Ошибка создания слота: "+err.Error())
-	} else {
-		errSend = a.kafkaProducer.SendMessage(a.kafkaTopicEvents, fmt.Sprintf("Слот успешно создан с ID: %d", slot.ID))
-	}
-
-	if errSend != nil {
-		a.logger.Error("Ошибка отправки события в kafka" + errSend.Error())
-	}
+	successMessage := fmt.Sprintf("Слот успешно создан с ID: %d", slot.ID)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "addSlot", a.logger)
 
 	return err
 }
 
 func (a *App) GetSlot(id int) (slot *model.Slot, err error) {
-	return a.storage.Banner().GetSlot(id)
+	slot, err = a.storage.Banner().GetSlot(id)
+	successMessage := fmt.Sprintf("Слот успешно получен с ID: %d", id)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "getSlot", a.logger)
+
+	return slot, err
 }
 
 func (a *App) AddBanner(banner *model.Banner) error {
-	return a.storage.Banner().CreateBanner(banner)
+	err := a.storage.Banner().CreateBanner(banner)
+
+	successMessage := fmt.Sprintf("Баннер успешно создан с ID: %d", banner.ID)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "addBanner", a.logger)
+
+	return err
 }
 
 func (a *App) GetBanner(id int) (banner *model.Banner, err error) {
-	return a.storage.Banner().GetBanner(id)
+	banner, err = a.storage.Banner().GetBanner(id)
+
+	successMessage := fmt.Sprintf("Баннер успешно получен с ID: %d", id)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "getBanner", a.logger)
+
+	return banner, err
 }
 
 func (a *App) AddGroup(group *model.Group) error {
-	return a.storage.Banner().CreateGroup(group)
+	err := a.storage.Banner().CreateGroup(group)
+
+	successMessage := fmt.Sprintf("Группа успешно создана с ID: %d", group.ID)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "addGroup", a.logger)
+
+	return err
 }
 
 func (a *App) GetGroup(id int) (group *model.Group, err error) {
-	return a.storage.Banner().GetGroup(id)
+	group, err = a.storage.Banner().GetGroup(id)
+
+	successMessage := fmt.Sprintf("Группа успешно получена с ID: %d", id)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "getGroup", a.logger)
+
+	return group, err
 }
 
-func (a *App) AddBannerGroupStats(group *model.BannerGroupStats) error {
-	stat, err := a.GetBannerGroupStats(group.SlotID, group.BannerID, group.GroupID)
+func (a *App) AddBannerGroupStats(stats *model.BannerGroupStats) error {
+	stat, err := a.GetBannerGroupStats(stats.SlotID, stats.BannerID, stats.GroupID)
 	if err == nil {
-		group.ID = stat.ID
-		group.Shows = stat.Shows
-		group.Clicks = stat.Clicks
-		group.CreatedAt = stat.CreatedAt
-		group.UpdatedAt = stat.UpdatedAt
+		stats.ID = stat.ID
+		stats.Shows = stat.Shows
+		stats.Clicks = stat.Clicks
+		stats.CreatedAt = stat.CreatedAt
+		stats.UpdatedAt = stat.UpdatedAt
 		return nil
 	}
 
-	return a.storage.Banner().CreateBannerGroupStats(group)
+	successMessage := fmt.Sprintf("Статистика успешно создана с ID: %d", stats.ID)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "addStats", a.logger)
+
+	return a.storage.Banner().CreateBannerGroupStats(stats)
 }
 
 func (a *App) GetBannerGroupStats(slotID, bannerID, groupID int) (*model.BannerGroupStats, error) {
-	return a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
+	stats, err := a.storage.Banner().GetBannerGroupStats(slotID, bannerID, groupID)
+
+	successMessage := fmt.Sprintf("Статистика успешно получена с banner ID: %d", bannerID)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "getStats", a.logger)
+
+	return stats, err
 }
 
 func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
@@ -93,6 +116,9 @@ func (a *App) RegisterClick(slotID, bannerID, groupID int) error {
 	stats.Clicks++
 	stats.Shows++
 	stats.UpdatedAt = time.Now()
+
+	successMessage := fmt.Sprintf("Регистрация клика прошла успешна для баннера с ID  %d", bannerID)
+	a.kafkaProducer.SendCustomMessage(err, successMessage, "registerClick", a.logger)
 
 	return a.storage.Banner().UpdateBannerGroupStats(stats)
 }
@@ -121,6 +147,9 @@ func (a *App) GetBannerByMultiArmBandit(slotID, groupID int) (banner *model.Bann
 		if err != nil {
 			return nil, err
 		}
+
+		successMessage := fmt.Sprintf("Баннер успешно рассчитан по алгоритму многорукого бандита: ID  %d", bannerID)
+		a.kafkaProducer.SendCustomMessage(err, successMessage, "getBannerByMultiArmBandit", a.logger)
 
 		return banner, nil
 	}

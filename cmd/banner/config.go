@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"strings"
 )
 
 type Config struct {
 	Server ServerConf
 	Logger LoggerConf
 	DB     DBConf
+	Kafka  KafkaConf
 }
 
 type ServerConf struct {
@@ -24,9 +26,9 @@ type LoggerConf struct {
 }
 
 type KafkaConf struct {
-	Brokers  string
-	RetryMax int
-	Topic    string
+	Brokers     string
+	RetryMax    int
+	EventsTopic string
 }
 
 type DBConf struct {
@@ -43,8 +45,29 @@ func NewConfig(configPath string) Config {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(configPath)
 
-	viper.SetEnvPrefix("db")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv()
+
+	// Задаем переменные окружения вручную, чтобы указать маппинг
+	viper.BindEnv("server.host")
+	viper.BindEnv("server.port")
+	viper.BindEnv("server.addressgrpc")
+	viper.BindEnv("server.ishttp")
+
+	viper.BindEnv("logger.file")
+	viper.BindEnv("logger.level")
+
+	viper.BindEnv("db.host")
+	viper.BindEnv("db.port")
+	viper.BindEnv("db.username")
+	viper.BindEnv("db.password")
+	viper.BindEnv("db.dbname")
+	viper.BindEnv("db.inmemory")
+
+	viper.BindEnv("kafka.brokers")
+	viper.BindEnv("kafka.retrymax")
+	viper.BindEnv("kafka.eventstopic")
+
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("ошибка чтения конфигурации: %w", err))
 	}
