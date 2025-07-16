@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  banner:
+  app:
     build:
       context: ../
       dockerfile: build/Dockerfile
@@ -9,7 +9,7 @@ services:
     environment:
       DB_HOST: ${POSTGRES_HOST:-postgres}
       SERVER_PORT: 8081
-      SERVER_ISHTTP: true
+      SERVER_ISHTTP: false
       KAFKA_BROKERS: "kafka:29092"
     ports:
       - "8081:8081"
@@ -24,7 +24,7 @@ services:
 
   postgres:
     image: postgres:17.5
-    container_name: postgres
+    container_name: banner-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-banner} # имя БД
       POSTGRES_USER: ${POSTGRES_USER:-user} # пользователь
@@ -45,6 +45,7 @@ services:
     build:
       context: ..
       dockerfile: build/goose/Dockerfile
+    container_name: banner-migrate
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,7 +63,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     hostname: kafka
-    container_name: kafka
+    container_name: banner-kafka
     ports:
       - "9092:9092"
       - "29092:29092"  # внутренний порт для взаимодействия между контейнерами
@@ -93,7 +94,7 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
+    container_name: banner-kafka-ui
     ports:
       - "8080:8080"
     environment:
