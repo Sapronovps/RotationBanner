@@ -41,6 +41,24 @@ services:
     networks:
       - banner-network
 
+  migrate:
+    build:
+      context: ..
+      dockerfile: build/goose/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      GOOSE_DRIVER: "postgres"
+      GOOSE_DBSTRING: "postgres://user:password@postgres:5432/banner"
+      GOOSE_MIGRATION_DIR: "./migrations"
+      GOOSE_TABLE: "goose_migrations"
+    volumes:
+      - ../migrations:/migrations
+    command: ["goose", "up"]
+    networks:
+      - banner-network
+
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     hostname: kafka

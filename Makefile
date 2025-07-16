@@ -12,6 +12,7 @@ run: build
 version: build
 	$(BIN) version
 
+# Поднять проект в docker (приложение + зависимости)
 docker-up:
 	docker compose -f deployments/docker-compose.yaml up -d
 
